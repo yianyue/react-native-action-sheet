@@ -23,6 +23,7 @@ const Y_ANIMATION_TIME = 250;
 const OFFSCREEN_HEIGHT = 9999;
 const PIXEL = 1 / PixelRatio.get();
 const windowHeight = Dimensions.get('window').height;
+const MAX_OPTIONS_HEIGHT = windowHeight - 100; // HACK: does not take into account destructive button
 
 class ActionGroup extends React.Component {
   static propTypes = {
@@ -250,7 +251,7 @@ export default class ActionSheet extends React.Component {
   _optionsOnLayout(event) {
     let height = event.nativeEvent.layout.height;
     this.setState({
-      optionsHeight: Math.min(height, windowHeight - 100)
+      optionsHeight: Math.min(height, MAX_OPTIONS_HEIGHT)
     });
   }
 }
