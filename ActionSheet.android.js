@@ -14,12 +14,15 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  ScrollView,
+  Dimensions
 } from 'react-native';
 
 const OPACITY_ANIMATION_TIME = 250;
 const Y_ANIMATION_TIME = 250;
 const OFFSCREEN_HEIGHT = 9999;
 const PIXEL = 1 / PixelRatio.get();
+const windowHeight = Dimensions.get('window').height;
 
 class ActionGroup extends React.Component {
   static propTypes = {
@@ -80,6 +83,7 @@ export default class ActionSheet extends React.Component {
     this._onSelect   = this._onSelect.bind(this);
     this._animateOut = this._animateOut.bind(this);
     this._onLayout   = this._onLayout.bind(this);
+    this._optionsOnLayout = this._optionsOnLayout.bind(this);
 
     this.state = {
       isVisible: false,
@@ -90,6 +94,7 @@ export default class ActionSheet extends React.Component {
       overlayOpacity: new Animated.Value(0),
       sheetY: new Animated.Value(-OFFSCREEN_HEIGHT),
       isWaitingForSheetHeight: false,
+      optionsHeight: windowHeight
     };
   }
 
@@ -116,26 +121,32 @@ export default class ActionSheet extends React.Component {
 
   _renderSheet() {
     let numOptions = this.state.options.options.length;
-
     return (
       <Animated.View style={[styles.sheetContainer, {
-        bottom: this.state.sheetY,
-      }]}>
+          bottom: this.state.sheetY,
+        }]}>
         <View onLayout={this._onLayout} style={styles.sheet}>
-          <ActionGroup
-            options={this.state.options.options}
-            destructiveButtonIndex={this.state.options.destructiveButtonIndex}
-            onSelect={this._onSelect}
-            startIndex={0}
-            length={numOptions - 1}
-          />
-          <ActionGroup
-            options={this.state.options.options}
-            destructiveButtonIndex={this.state.options.destructiveButtonIndex}
-            onSelect={this._onSelect}
-            startIndex={numOptions - 1}
-            length={1}
-          />
+
+          <ScrollView style={{height: this.state.optionsHeight, marginVertical: 8}}>
+            <View onLayout={this._optionsOnLayout}>
+              <ActionGroup
+                options={this.state.options.options}
+                destructiveButtonIndex={this.state.options.destructiveButtonIndex}
+                onSelect={this._onSelect}
+                startIndex={0}
+                length={numOptions - 1}
+                />
+            </View>
+          </ScrollView>
+          <View style={{marginBottom: 8}}>
+            <ActionGroup
+              options={this.state.options.options}
+              destructiveButtonIndex={this.state.options.destructiveButtonIndex}
+              onSelect={this._onSelect}
+              startIndex={numOptions - 1}
+              length={1}
+              />
+          </View>
         </View>
       </Animated.View>
     );
@@ -235,6 +246,13 @@ export default class ActionSheet extends React.Component {
       }
     });
   }
+
+  _optionsOnLayout(event) {
+    let height = event.nativeEvent.layout.height;
+    this.setState({
+      optionsHeight: Math.min(height, windowHeight - 100)
+    });
+  }
 }
 
 let styles = StyleSheet.create({
@@ -244,8 +262,6 @@ let styles = StyleSheet.create({
     borderColor: '#cbcbcb',
     borderWidth: PIXEL,
     overflow: 'hidden',
-    marginHorizontal: 8,
-    marginBottom: 8,
   },
   button: {
     justifyContent: 'center',
@@ -277,5 +293,6 @@ let styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: 'transparent',
+    marginHorizontal: 8,
   },
 });
