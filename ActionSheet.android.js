@@ -24,6 +24,7 @@ const OFFSCREEN_HEIGHT = 9999;
 const PIXEL = 1 / PixelRatio.get();
 const windowHeight = Dimensions.get('window').height;
 const MAX_OPTIONS_HEIGHT = windowHeight - 100; // HACK: does not take into account destructive button
+const BORDER_RADIUS = 10; // matches ios
 
 class ActionGroup extends React.Component {
   static propTypes = {
@@ -32,6 +33,8 @@ class ActionGroup extends React.Component {
     onSelect: PropTypes.func.isRequired,
     startIndex: PropTypes.number.isRequired,
     length: PropTypes.number.isRequired,
+    textStyle: Text.propTypes.style,
+    contentContainerStyle: View.propTypes.style
   };
 
   render() {
@@ -41,6 +44,8 @@ class ActionGroup extends React.Component {
       onSelect,
       startIndex,
       length,
+      textStyle,
+      contentContainerStyle
     } = this.props;
 
     let optionViews = [];
@@ -55,7 +60,7 @@ class ActionGroup extends React.Component {
           key={i}
           onPress={() => onSelect(i)}
           style={styles.button}>
-          <Text style={[styles.text, {color}]}>
+          <Text style={[styles.text, textStyle, {color}]}>
             {options[i]}
           </Text>
         </TouchableOpacity>
@@ -69,7 +74,7 @@ class ActionGroup extends React.Component {
     }
 
     return (
-      <View style={styles.groupContainer}>
+      <View style={[styles.groupContainer, contentContainerStyle]}>
         {optionViews}
       </View>
     );
@@ -146,6 +151,7 @@ export default class ActionSheet extends React.Component {
               onSelect={this._onSelect}
               startIndex={numOptions - 1}
               length={1}
+              textStyle={{fontWeight: 'bold'}}
               />
           </View>
         </View>
@@ -259,7 +265,7 @@ export default class ActionSheet extends React.Component {
 let styles = StyleSheet.create({
   groupContainer: {
     backgroundColor: '#fefefe',
-    borderRadius: 4,
+    borderRadius: BORDER_RADIUS,
     borderColor: '#cbcbcb',
     borderWidth: PIXEL,
     overflow: 'hidden',
