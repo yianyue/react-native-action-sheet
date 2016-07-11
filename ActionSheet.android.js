@@ -29,6 +29,7 @@ const BORDER_RADIUS = 10; // matches ios
 class ActionGroup extends React.Component {
   static propTypes = {
     options: PropTypes.array.isRequired,
+    title: PropTypes.string,
     destructiveButtonIndex: PropTypes.number,
     onSelect: PropTypes.func.isRequired,
     startIndex: PropTypes.number.isRequired,
@@ -49,6 +50,7 @@ class ActionGroup extends React.Component {
     } = this.props;
 
     let optionViews = [];
+
     for (let i = startIndex; i < startIndex + length; i++) {
       let color = '#007aff';
       if (i === destructiveButtonIndex) {
@@ -74,7 +76,7 @@ class ActionGroup extends React.Component {
     }
 
     return (
-      <View style={[styles.groupContainer, contentContainerStyle]}>
+      <View style={[contentContainerStyle]}>
         {optionViews}
       </View>
     );
@@ -132,8 +134,15 @@ export default class ActionSheet extends React.Component {
           bottom: this.state.sheetY,
         }]}>
         <View onLayout={this._onLayout} style={styles.sheet}>
-
-          <ScrollView style={{height: this.state.optionsHeight, marginVertical: 8}}>
+          <View style={[{height: this.state.optionsHeight, marginVertical: 8}, styles.groupContainer, ]}>
+            {this.state.options.title &&
+              <View style={[styles.button, {borderBottomWidth: PIXEL, borderColor: '#cbcbcb' }]}>
+                <Text style={styles.titleText}>
+                  {this.state.options.title}
+                </Text>
+              </View>
+            }
+          <ScrollView style={{flex: 1}} >
             <View onLayout={this._optionsOnLayout}>
               <ActionGroup
                 options={this.state.options.options}
@@ -144,7 +153,8 @@ export default class ActionSheet extends React.Component {
                 />
             </View>
           </ScrollView>
-          <View style={{marginBottom: 8}}>
+          </View>
+          <View style={[{marginBottom: 8}, styles.groupContainer]}>
             <ActionGroup
               options={this.state.options.options}
               destructiveButtonIndex={this.state.options.destructiveButtonIndex}
@@ -278,6 +288,10 @@ let styles = StyleSheet.create({
   text: {
     fontSize: 17,
     fontWeight: '400',
+  },
+  titleText: {
+    fontSize: 12,
+    color: '#c8c7cc'
   },
   rowSeparator: {
     backgroundColor: '#cbcbcb',
