@@ -266,6 +266,9 @@ export default class ActionSheet extends React.Component {
 
   _optionsOnLayout(event) {
     let height = event.nativeEvent.layout.height;
+    if (this.state.options.title){
+      height += 51;
+    }
     this.setState({
       optionsHeight: Math.min(height, MAX_OPTIONS_HEIGHT)
     });
