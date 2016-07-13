@@ -25,6 +25,7 @@ const PIXEL = 1 / PixelRatio.get();
 const windowHeight = Dimensions.get('window').height;
 const MAX_OPTIONS_HEIGHT = windowHeight - 100; // HACK: does not take into account destructive button
 const BORDER_RADIUS = 10; // matches ios
+const BUTTON_HEIGHT = 50;
 
 class ActionGroup extends React.Component {
   static propTypes = {
@@ -134,7 +135,7 @@ export default class ActionSheet extends React.Component {
           bottom: this.state.sheetY,
         }]}>
         <View onLayout={this._onLayout} style={styles.sheet}>
-          <View style={[{height: this.state.optionsHeight, marginVertical: 8}, styles.groupContainer, ]}>
+          <View style={[{height: this.state.optionsHeight, marginVertical: 8}, styles.groupContainer]}>
             {this.state.options.title &&
               <View style={[styles.button, {borderBottomWidth: PIXEL, borderColor: '#cbcbcb' }]}>
                 <Text style={styles.titleText}>
@@ -261,9 +262,10 @@ export default class ActionSheet extends React.Component {
   }
 
   _optionsOnLayout(event) {
-    let height = event.nativeEvent.layout.height;
+    // ScrollView content height + border
+    let height = event.nativeEvent.layout.height + PIXEL * 2;
     if (this.state.options.title){
-      height += 51;
+      height += BUTTON_HEIGHT;
     }
     this.setState({
       optionsHeight: Math.min(height, MAX_OPTIONS_HEIGHT)
@@ -282,7 +284,7 @@ let styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 50,
+    height: BUTTON_HEIGHT,
   },
   text: {
     fontSize: 17,
