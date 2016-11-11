@@ -77,7 +77,7 @@ class ActionGroup extends React.Component {
     }
 
     return (
-      <View style={[contentContainerStyle]}>
+      <View>
         {optionViews}
       </View>
     );
@@ -103,7 +103,7 @@ export default class ActionSheet extends React.Component {
       overlayOpacity: new Animated.Value(0),
       sheetY: new Animated.Value(-OFFSCREEN_HEIGHT),
       isWaitingForSheetHeight: false,
-      optionsHeight: windowHeight
+      optionsHeight: null
     };
   }
 
@@ -129,13 +129,14 @@ export default class ActionSheet extends React.Component {
   }
 
   _renderSheet() {
+    const {optionsHeight, isWaitingForSheetHeight} = this.state;
     let numOptions = this.state.options.options.length;
     return (
       <Animated.View style={[styles.sheetContainer, {
           bottom: this.state.sheetY,
         }]}>
         <View onLayout={this._onLayout} style={styles.sheet}>
-          <View style={[{height: this.state.optionsHeight, marginVertical: 8}, styles.groupContainer]}>
+          <View style={[{height: optionsHeight, marginVertical: 8}, styles.groupContainer]}>
             {this.state.options.title &&
               <View style={[styles.button, {borderBottomWidth: PIXEL, borderColor: '#cbcbcb' }]}>
                 <Text style={styles.titleText}>
@@ -143,17 +144,20 @@ export default class ActionSheet extends React.Component {
                 </Text>
               </View>
             }
-          <ScrollView style={{flex: 1}} >
-            <View onLayout={this._optionsOnLayout}>
-              <ActionGroup
-                options={this.state.options.options}
-                destructiveButtonIndex={this.state.options.destructiveButtonIndex}
-                onSelect={this._onSelect}
-                startIndex={0}
-                length={numOptions - 1}
-                />
-            </View>
-          </ScrollView>
+            {
+              !isWaitingForSheetHeight && // HACK: setting optionsHeight before sheetHeight causes the cancel button to not appear initially
+              <ScrollView>
+                <View onLayout={this._optionsOnLayout}>
+                  <ActionGroup
+                    options={this.state.options.options}
+                    destructiveButtonIndex={this.state.options.destructiveButtonIndex}
+                    onSelect={this._onSelect}
+                    startIndex={0}
+                    length={numOptions - 1}
+                    />
+                </View>
+              </ScrollView>
+            }
           </View>
           <View style={[{marginBottom: 8}, styles.groupContainer]}>
             <ActionGroup
@@ -240,7 +244,6 @@ export default class ActionSheet extends React.Component {
     if (!this.state.isWaitingForSheetHeight) {
       return;
     }
-
     let height = event.nativeEvent.layout.height;
     this.setState({
       isWaitingForSheetHeight: false,
@@ -297,7 +300,6 @@ let styles = StyleSheet.create({
   rowSeparator: {
     backgroundColor: '#cbcbcb',
     height: PIXEL,
-    flex: 1,
   },
   overlay: {
     position: 'absolute',
