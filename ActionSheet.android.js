@@ -39,7 +39,7 @@ class ActionGroup extends React.Component {
     contentContainerStyle: View.propTypes.style
   };
 
-  render() {
+  render () {
     let {
       options,
       destructiveButtonIndex,
@@ -86,14 +86,14 @@ class ActionGroup extends React.Component {
 
 // Has same API as https://facebook.github.io/react-native/docs/actionsheetios.html
 export default class ActionSheet extends React.Component {
-  constructor(props, context) {
+  constructor (props, context) {
     super(props, context);
 
-    this._onSelect   = this._onSelect.bind(this);
+    this._onSelect = this._onSelect.bind(this);
     this._animateOut = this._animateOut.bind(this);
-    this._onLayout   = this._onLayout.bind(this);
+    this._onLayout = this._onLayout.bind(this);
     this._optionsOnLayout = this._optionsOnLayout.bind(this);
-
+    this._selectCancelButton = this._selectCancelButton.bind(this);
     this.state = {
       isVisible: false,
       isAnimating: false,
@@ -107,10 +107,10 @@ export default class ActionSheet extends React.Component {
     };
   }
 
-  render() {
+  render () {
     let { isVisible } = this.state;
     let overlay = isVisible ? (
-      <TouchableWithoutFeedback onPress={this._animateOut}>
+      <TouchableWithoutFeedback onPress={this._selectCancelButton}>
         <Animated.View style={[styles.overlay, {
           opacity: this.state.overlayOpacity,
         }]}/>
@@ -128,13 +128,13 @@ export default class ActionSheet extends React.Component {
     );
   }
 
-  _renderSheet() {
+  _renderSheet () {
     const {optionsHeight, isWaitingForSheetHeight} = this.state;
     let numOptions = this.state.options.options.length;
     return (
       <Animated.View style={[styles.sheetContainer, {
-          bottom: this.state.sheetY,
-        }]}>
+        bottom: this.state.sheetY,
+      }]}>
         <View onLayout={this._onLayout} style={styles.sheet}>
           <View style={[{height: optionsHeight, marginVertical: 8}, styles.groupContainer]}>
             {this.state.options.title &&
@@ -174,7 +174,7 @@ export default class ActionSheet extends React.Component {
     );
   }
 
-  showActionSheetWithOptions(options, onSelect) {
+  showActionSheetWithOptions (options, onSelect) {
     if (this.state.isVisible) {
       return;
     }
@@ -196,10 +196,10 @@ export default class ActionSheet extends React.Component {
       duration: OPACITY_ANIMATION_TIME,
     }).start();
 
-    BackAndroid.addEventListener('actionSheetHardwareBackPress', this._animateOut);
+    BackAndroid.addEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
   }
 
-  _onSelect(index) {
+  _onSelect (index) {
     if (this.state.isAnimating) {
       return;
     }
@@ -207,12 +207,12 @@ export default class ActionSheet extends React.Component {
     this._animateOut();
   }
 
-  _animateOut() {
+  _animateOut () {
     if (this.state.isAnimating) {
       return false;
     }
 
-    BackAndroid.removeEventListener('actionSheetHardwareBackPress', this._animateOut);
+    BackAndroid.removeEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
 
     this.setState({
       isAnimating: true,
@@ -240,7 +240,19 @@ export default class ActionSheet extends React.Component {
     return true;
   }
 
-  _onLayout(event) {
+  _selectCancelButton () {
+    if (!this.state.options) {
+      return false;
+    }
+
+    if (typeof this.state.options.cancelButtonIndex === 'number') {
+      return this._onSelect(this.state.options.cancelButtonIndex);
+    } else {
+      return this._animateOut();
+    }
+  }
+
+  _onLayout (event) {
     if (!this.state.isWaitingForSheetHeight) {
       return;
     }
@@ -264,10 +276,10 @@ export default class ActionSheet extends React.Component {
     });
   }
 
-  _optionsOnLayout(event) {
+  _optionsOnLayout (event) {
     // ScrollView content height + border
     let height = event.nativeEvent.layout.height + PIXEL * 2;
-    if (this.state.options.title){
+    if (this.state.options.title) {
       height += BUTTON_HEIGHT;
     }
     this.setState({
