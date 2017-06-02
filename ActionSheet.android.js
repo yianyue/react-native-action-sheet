@@ -15,7 +15,8 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
-  Dimensions
+  Dimensions,
+  ViewPropTypes
 } from 'react-native';
 
 const OPACITY_ANIMATION_TIME = 250;
@@ -36,7 +37,7 @@ class ActionGroup extends React.Component {
     startIndex: PropTypes.number.isRequired,
     length: PropTypes.number.isRequired,
     textStyle: Text.propTypes.style,
-    contentContainerStyle: View.propTypes.style
+    contentContainerStyle: ViewPropTypes.style
   };
 
   render () {
