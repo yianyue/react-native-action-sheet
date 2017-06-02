@@ -6,7 +6,7 @@ import React, {
 
 import {
   Animated,
-  BackAndroid,
+  BackHandler,
   Easing,
   PixelRatio,
   StyleSheet,
@@ -88,12 +88,6 @@ class ActionGroup extends React.Component {
 export default class ActionSheet extends React.Component {
   constructor (props, context) {
     super(props, context);
-
-    this._onSelect = this._onSelect.bind(this);
-    this._animateOut = this._animateOut.bind(this);
-    this._onLayout = this._onLayout.bind(this);
-    this._optionsOnLayout = this._optionsOnLayout.bind(this);
-    this._selectCancelButton = this._selectCancelButton.bind(this);
     this.state = {
       isVisible: false,
       isAnimating: false,
@@ -196,10 +190,10 @@ export default class ActionSheet extends React.Component {
       duration: OPACITY_ANIMATION_TIME,
     }).start();
 
-    BackAndroid.addEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
+    BackHandler.addEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
   }
 
-  _onSelect (index) {
+  _onSelect = (index) => {
     if (this.state.isAnimating) {
       return;
     }
@@ -207,12 +201,12 @@ export default class ActionSheet extends React.Component {
     this._animateOut();
   }
 
-  _animateOut () {
+  _animateOut = () => {
     if (this.state.isAnimating) {
       return false;
     }
 
-    BackAndroid.removeEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
+    BackHandler.removeEventListener('actionSheetHardwareBackPress', this._selectCancelButton);
 
     this.setState({
       isAnimating: true,
@@ -240,7 +234,7 @@ export default class ActionSheet extends React.Component {
     return true;
   }
 
-  _selectCancelButton () {
+  _selectCancelButton = () => {
     if (!this.state.options) {
       return false;
     }
@@ -252,7 +246,7 @@ export default class ActionSheet extends React.Component {
     }
   }
 
-  _onLayout (event) {
+  _onLayout = (event) => {
     if (!this.state.isWaitingForSheetHeight) {
       return;
     }
@@ -276,7 +270,7 @@ export default class ActionSheet extends React.Component {
     });
   }
 
-  _optionsOnLayout (event) {
+  _optionsOnLayout = (event) => {
     // ScrollView content height + border
     let height = event.nativeEvent.layout.height + PIXEL * 2;
     if (this.state.options.title) {
